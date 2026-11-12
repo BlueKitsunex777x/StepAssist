@@ -7,15 +7,7 @@ using System;
 
 
 // Turn auto-jump into step-assist
-//
-// changes (MRC):
-// - checks left, middle and right of your front instead of just the middle, so it steps up
-//   in corners and when walking at an angle along a ledge
-// - lifts straight up first, then a small push (StepForward) onto the ledge. the old single
-//   diagonal move pushed a whole block and could catch on the ledge edge
-// - the on/off switch on the Mods page actually stops it now
-// - mod ID was still com.yourname
-// - turning it off mid game leaves auto jump off until a restart
+// changed: ID was still the template's com.yourname
 [BepInPlugin("com.blue.blockstory.stepassist", "Block Story - StepAssist", "1.0.0")]
 [BepInDependency(Core.Guid)]               // hard dependency on the toolbox; won't load without it
 public class StepAssistPlugin : BaseUnityPlugin
@@ -48,7 +40,8 @@ public class StepAssistPlugin : BaseUnityPlugin
         // a hair over one block so the feet clear the edge instead of scraping it
         private const float StepHeight = 1.02f;
 
-        // how far onto the ledge the step carries you, small enough not to feel like a shove
+        // added: how far onto the ledge the step carries you. the old push was a whole block,
+        // small enough here not to feel like a shove
         private const float StepForward = 0.2f;
 
         // our own lift calls Move again, don't let that trigger another step
@@ -56,6 +49,8 @@ public class StepAssistPlugin : BaseUnityPlugin
 
         private static void Prefix(TerrainCharacterController __instance, Vector3 deltaMove, float deltaTime)
         {
+            // added: the Mods page switch never reached the patch, so off didn't stop it.
+            // off mid game leaves auto jump off below until a restart
             if (!Enabled || _lifting || !__instance.CompareTag("Player")) return;
             try
             {
@@ -81,7 +76,7 @@ public class StepAssistPlugin : BaseUnityPlugin
 
                 var world = MasterDatabase.instance.terrain.world;
 
-                // check the left edge, middle and right edge of our front, not just the middle.
+                // changed: was one spot in the middle. now the left edge, middle and right edge of our front.
                 // one spot misses corners: walking diagonally into an inside corner it lands on the
                 // empty block between them, and clipping an outside corner it misses the block
                 Vector3 front = position + direction * (Mathf.Max(halfSize.x, halfSize.z) + 0.1f);
@@ -115,8 +110,9 @@ public class StepAssistPlugin : BaseUnityPlugin
                 _lifting = true;
                 __instance.Move(new Vector3(0f, lift, 0f), deltaTime);
 
-                // then a small push the way we're walking, so we land on the ledge instead of
-                // hovering at its edge. done as a second move so the up part clears the edge first
+                // changed: was one diagonal move (up + a whole block forward) which could catch on
+                // the ledge edge. now up first, then a small push the way we're walking so we land
+                // on the ledge instead of hovering at its edge
                 __instance.Move(direction * StepForward, deltaTime);
             }
             catch (Exception e) { Debug.LogError("[StepUp] " + e); }
