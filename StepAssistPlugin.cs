@@ -91,7 +91,6 @@ public class StepAssistPlugin : BaseUnityPlugin
                 // move up through the game's own collision so it still can't push us into a block
                 _lifting = true;
                 __instance.Move(new Vector3(direction.x, lift, direction.z), deltaTime);
-                L.Warn($"{ahead.x} {position.x}, {lift}, {ahead.z} {position.z} {direction}");
             }
             catch (Exception e) { Debug.LogError("[StepUp] " + e); }
             finally { _lifting = false; }
