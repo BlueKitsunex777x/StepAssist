@@ -7,6 +7,15 @@ using System;
 
 
 // Turn auto-jump into step-assist
+//
+// changes (MRC):
+// - checks left, middle and right of your front instead of just the middle, so it steps up
+//   in corners and when walking at an angle along a ledge
+// - lifts straight up first, then a small push (StepForward) onto the ledge. the old single
+//   diagonal move pushed a whole block and could catch on the ledge edge
+// - the on/off switch on the Mods page actually stops it now
+// - mod ID was still com.yourname
+// - turning it off mid game leaves auto jump off until a restart
 [BepInPlugin("com.blue.blockstory.stepassist", "Block Story - StepAssist", "1.0.0")]
 [BepInDependency(Core.Guid)]               // hard dependency on the toolbox; won't load without it
 public class StepAssistPlugin : BaseUnityPlugin
