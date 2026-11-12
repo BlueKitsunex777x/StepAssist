@@ -7,7 +7,8 @@ using System;
 
 
 // Turn auto-jump into step-assist
-[BepInPlugin("com.yourname.blockstory.stepassist", "Block Story - StepAssist", "1.0.0")]
+// changed: ID was still the template's com.yourname
+[BepInPlugin("com.blue.blockstory.stepassist", "Block Story - StepAssist", "1.0.0")]
 [BepInDependency(Core.Guid)]               // hard dependency on the toolbox; won't load without it
 public class StepAssistPlugin : BaseUnityPlugin
 {
@@ -15,7 +16,7 @@ public class StepAssistPlugin : BaseUnityPlugin
 
     private void Awake()
     {
-        new Harmony("com.blue.blockstory.stepup").PatchAll();
+        new Harmony("com.blue.blockstory.stepassist").PatchAll();
 
         // registers the mod so it shows on the in-game Mods page
         ModRegistry.Register(new ModInfo
@@ -39,12 +40,18 @@ public class StepAssistPlugin : BaseUnityPlugin
         // a hair over one block so the feet clear the edge instead of scraping it
         private const float StepHeight = 1.02f;
 
+        // added: how far onto the ledge the step carries you. the old push was a whole block,
+        // small enough here not to feel like a shove
+        private const float StepForward = 0.2f;
+
         // our own lift calls Move again, don't let that trigger another step
         private static bool _lifting;
 
         private static void Prefix(TerrainCharacterController __instance, Vector3 deltaMove, float deltaTime)
         {
-            if (_lifting || !__instance.CompareTag("Player")) return;
+            // added: the Mods page switch never reached the patch, so off didn't stop it.
+            // off mid game leaves auto jump off below until a restart
+            if (!Enabled || _lifting || !__instance.CompareTag("Player")) return;
             try
             {
                 CharacterMotor motor = __instance.GetComponent<CharacterMotor>();
@@ -67,18 +74,29 @@ public class StepAssistPlugin : BaseUnityPlugin
                 int feetBlock = Mathf.FloorToInt(feetY + 0.01f);
                 int headBlocks = Mathf.CeilToInt(halfSize.y * 2f);
 
-                // look just past the front edge of the box
-                Vector3 ahead = position + direction * (Mathf.Max(halfSize.x, halfSize.z) + 0.1f);
-                Vector3 move = direction * 0.1f;
-                int aheadX = Mathf.FloorToInt(ahead.x);
-                int aheadZ = Mathf.FloorToInt(ahead.z);
-
                 var world = MasterDatabase.instance.terrain.world;
 
-                // only a single block ledge, a two high wall should still stop you
-                if (!world[aheadX, feetBlock, aheadZ].IsSolid) return;
-                for (int up = 1; up <= headBlocks; up++)
-                    if (world[aheadX, feetBlock + up, aheadZ].IsSolid) return;
+                // changed: was one spot in the middle. now the left edge, middle and right edge of our front.
+                // one spot misses corners: walking diagonally into an inside corner it lands on the
+                // empty block between them, and clipping an outside corner it misses the block
+                Vector3 front = position + direction * (Mathf.Max(halfSize.x, halfSize.z) + 0.1f);
+                Vector3 across = new Vector3(-direction.z, 0f, direction.x) * (Mathf.Min(halfSize.x, halfSize.z) * 0.9f);
+                Vector3[] spots = { front - across, front, front + across };
+
+                bool ledge = false;
+                foreach (Vector3 spot in spots)
+                {
+                    int spotX = Mathf.FloorToInt(spot.x);
+                    int spotZ = Mathf.FloorToInt(spot.z);
+
+                    // anything at head height anywhere across the front means a wall or a low
+                    // ceiling, and stepping up there would jam us into it
+                    for (int up = 1; up <= headBlocks; up++)
+                        if (world[spotX, feetBlock + up, spotZ].IsSolid) return;
+
+                    if (world[spotX, feetBlock, spotZ].IsSolid) ledge = true;
+                }
+                if (!ledge) return;
 
                 // room above our own head too, or we'd pop into the ceiling
                 int hereX = Mathf.FloorToInt(position.x);
@@ -90,7 +108,12 @@ public class StepAssistPlugin : BaseUnityPlugin
 
                 // move up through the game's own collision so it still can't push us into a block
                 _lifting = true;
-                __instance.Move(new Vector3(direction.x, lift, direction.z), deltaTime);
+                __instance.Move(new Vector3(0f, lift, 0f), deltaTime);
+
+                // changed: was one diagonal move (up + a whole block forward) which could catch on
+                // the ledge edge. now up first, then a small push the way we're walking so we land
+                // on the ledge instead of hovering at its edge
+                __instance.Move(direction * StepForward, deltaTime);
             }
             catch (Exception e) { Debug.LogError("[StepUp] " + e); }
             finally { _lifting = false; }
