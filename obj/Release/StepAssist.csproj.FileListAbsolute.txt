@@ -1,0 +1,8 @@
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/bin/Release/StepAssist.deps.json
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/bin/Release/StepAssist.dll
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.csproj.AssemblyReference.cache
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.GeneratedMSBuildEditorConfig.editorconfig
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.AssemblyInfoInputs.cache
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.AssemblyInfo.cs
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.csproj.CoreCompileInputs.cache
+/home/sapphire/.config/BlockStoryModKit/Workspace/mods/StepAssist/obj/Release/StepAssist.dll

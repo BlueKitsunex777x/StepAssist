@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>StepAssist</AssemblyName>
+  </PropertyGroup>
+  <!-- Drop an icon.png in this folder and it's baked into your mod automatically, so the toolbox shows it
+       in-game on the Mods card and your config header. No icon.png? The toolbox falls back to a letter badge. -->
+  <ItemGroup Condition="Exists('icon.png')">
+    <EmbeddedResource Include="icon.png"><LogicalName>icon.png</LogicalName></EmbeddedResource>
+  </ItemGroup>
+</Project>
