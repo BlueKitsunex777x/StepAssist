@@ -8,7 +8,7 @@ using System;
 
 // Turn auto-jump into step-assist
 // changed: ID was still the template's com.yourname
-[BepInPlugin("com.blue.blockstory.stepassist", "Block Story - StepAssist", "1.0.0")]
+[BepInPlugin("com.BlueKitsunex777x.stepassist", "Block Story - StepAssist", "1.0.0")]
 [BepInDependency(Core.Guid)]               // hard dependency on the toolbox; won't load without it
 public class StepAssistPlugin : BaseUnityPlugin
 {
@@ -16,7 +16,12 @@ public class StepAssistPlugin : BaseUnityPlugin
 
     private void Awake()
     {
-        new Harmony("com.blue.blockstory.stepassist").PatchAll();
+        try
+        {
+            new Harmony("com.BlueKitsunex777x.stepassist").PatchAll();
+            L.Info("loaded, Step Assist");
+        }
+        catch(Exception e) { L.Err("PatchAll", e); }
 
         // registers the mod so it shows on the in-game Mods page
         ModRegistry.Register(new ModInfo
@@ -27,14 +32,14 @@ public class StepAssistPlugin : BaseUnityPlugin
             SetEnabled = on => { Enabled = on; PlayerPrefs.SetInt("StepAssist_Enabled", on ? 1 : 0); PlayerPrefs.Save(); L.Info($"enabled = {on}"); },
             HasConfig = false,
         });
-        Logger.LogInfo("step up loaded");
+        Core.Log?.LogInfo("Step Assist loaded.");
     }
 
 
     // the player doesn't use unity's collider on terrain, it uses the game's own box-vs-blocks one
     // (TerrainCharacterController), so stepOffset does nothing on blocks. we lift the box ourselves
     // just before the game moves it sideways into a 1 block ledge
-    [HarmonyPatch(typeof(TerrainCharacterController), "Move", new[] { typeof(Vector3), typeof(float) })]
+    [HarmonyPatch(typeof(TerrainCharacterController), "Move", [typeof(Vector3), typeof(float)])]
     internal static class StepUpPatch
     {
         // a hair over one block so the feet clear the edge instead of scraping it
