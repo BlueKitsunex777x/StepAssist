@@ -8,7 +8,7 @@ using System;
 
 // Turn auto-jump into step-assist
 // changed: ID was still the template's com.yourname
-[BepInPlugin("com.BlueKitsunex777x.stepassist", "Block Story - StepAssist", "1.0.0")]
+[BepInPlugin("com.BlueKitsunex777x.stepassist", "Block Story - StepAssist", "1.1.0")]
 [BepInDependency(Core.Guid)]               // hard dependency on the toolbox; won't load without it
 public class StepAssistPlugin : BaseUnityPlugin
 {
