@@ -16,12 +16,8 @@ public class StepAssistPlugin : BaseUnityPlugin
 
     private void Awake()
     {
-        try
-        {
-            new Harmony("com.BlueKitsunex777x.stepassist").PatchAll();
-            L.Info("loaded, Step Assist");
-        }
-        catch(Exception e) { L.Err("PatchAll", e); }
+        if (!BSMKCheck.Passed(this)) return;   // added: only runs on the real BSMK Core
+        new Harmony("com.blue.blockstory.stepassist").PatchAll();
 
         // registers the mod so it shows on the in-game Mods page
         ModRegistry.Register(new ModInfo
